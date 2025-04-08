@@ -26,12 +26,91 @@ print("Welcome to the UW Calculator Playground")
 //: 
 //: For this latter set of operations, it is safe to assume that `["count"]` (with no additional arguments) is 0, `["avg"]` is also 0, and `["fact"]` is 0. `["1", "fact"]` should return 1, and `["0", "fact"]` should also return 1. (Yes, 0-factorial is 1. True story.)
 //: 
+
 func calculate(_ args: [String]) -> Int {
-    return -1
+    if args.isEmpty {
+            return 0
+        }
+
+        if let last = args.last {
+            switch last {
+            case "count":
+                var numCount = 0
+                for item in args {
+                    if Int(item) != nil {
+                        numCount += 1
+                    }
+                }
+                return numCount
+
+            case "avg":
+                var totalSum = 0
+                var validNums = 0
+
+                for item in args {
+                    if let val = Int(item) {
+                        totalSum += val
+                        validNums += 1
+                    }
+                }
+
+                return validNums > 0 ? totalSum / validNums : 0
+
+            case "fact":
+                guard args.count >= 2, let base = Int(args[0]) else {
+                    return 0
+                }
+
+                if base <= 1 {
+                    return 1
+                }
+
+                var factorial = 1
+                for i in 2...base {
+                    factorial *= i
+                }
+                return factorial
+
+            default:
+                break
+            }
+        }
+
+        var finalResult = 0
+        var activeOp = ""
+        var needsInit = true
+
+        for token in args {
+            if let value = Int(token) {
+                if needsInit {
+                    finalResult = value
+                    needsInit = false
+                } else {
+                    switch activeOp {
+                    case "+":
+                        finalResult += value
+                    case "-":
+                        finalResult -= value
+                    case "*":
+                        finalResult *= value
+                    case "/":
+                        finalResult = value != 0 ? finalResult / value : 0
+                    case "%":
+                        finalResult = value != 0 ? finalResult % value : 0
+                    default:
+                        break
+                    }
+                }
+            } else {
+                activeOp = token
+            }
+        }
+
+        return finalResult
 }
 
 func calculate(_ arg: String) -> Int {
-    return -1
+    return calculate(arg.split(separator: " ").map { String($0) })
 }
 
 //: Below this are the test expressions/calls to verify if your code is correct.
@@ -85,7 +164,7 @@ calculate("5 fact") == 120
 //: Implement `calculate([String])` and `calculate(String)` to handle negative numbers. You need only make the tests below pass. (You do not need to worry about "fact"/factorial with negative numbers, for example.)
 //:
 //: This is worth 1 pt
-/*
+
 calculate(["2", "+", "-2"]) == 0
 calculate(["2", "-", "-2"]) == 4
 calculate(["2", "*", "-2"]) == -4
@@ -100,8 +179,7 @@ calculate("2 - -2") == 4
 calculate("-2 / 2") == -1
 
 calculate("1 -2 3 -4 5 count") == 5
-*/
- 
+
 //: Implement `calculate([String])` and `calculate(String)` to use 
 //: and return floating-point values. You need only make the tests 
 //: below pass. (Factorial of floating-point numbers doesn't make 
